@@ -6,8 +6,13 @@ const app = express();
 //connect database
 connectDB();
 
+//init middleware
+app.use(express.json({extended : false}));
+
 
 app.get('/' ,(req , res) => res.send('API Running'))
+
+//define routes
 app.use('/api/users' , require('./routes/api/users'));
 app.use('/api/profile' , require('./routes/api/profile'));
 app.use('/api/post' , require('./routes/api/post'));
