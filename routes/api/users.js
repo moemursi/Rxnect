@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
+const gravatar = require('gravatar')
 const { check, validationResult } = require("express-validator");
+const bcrypt = require('bcrypt.js')
 
 const User = require('../../models/User')
 
@@ -29,19 +31,34 @@ router.post(
     try {
       let user = await User.findOne({ email });
       if (user) {
-        res.status(400).json({ [{ "msg" : "username is already taken"}] });
+        res.status(400).json({ errors: [{ "msg" : "username is already taken"}] });
       }    
+
+    const avatar = gravatar.url(email , {
+      s: '200',
+      r: 'pg',
+      d: 'mm'
+    })
+
+    user = new User({
+      name,
+      email,
+      avatar,
+      password
+    });
+
+    const salt = await bcrypt.gensalt(10);
+
+    user.password = await bcrypt.hash(password , salt);
+
+    await user.save();
+
+
     
-
-    //get user's gravatar
-
-    //encrypt the password using bcrypt
-
-    //return json webtoken
-    res.send("user route is here ");
+    res.send("User Registered");
     } catch (err) {
       console.error(err.message);
-      res.status(500).send("Server Error ")
+      res.status(500).send("Server Error ");
       
     }
     
